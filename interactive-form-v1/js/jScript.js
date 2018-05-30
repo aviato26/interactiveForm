@@ -6,15 +6,15 @@
 const jobRole = () => {
   const select = document.getElementById('title');
   const fieldset = document.querySelector('fieldset');
-  let input;
-  select.addEventListener('change', function(e){
-    let result = e.target.value;
-    input = fieldset.querySelectorAll('input').length;
-    if(result === 'other'){
-      return select.insertAdjacentHTML('afterend', '<input type="text" id="other-title" placeholder="Your Job Role"></input>')
+  const input = document.getElementById('other-title');
+  input.style.display = 'none';
+
+  select.addEventListener('change', function(){
+    if(select.value === 'other'){
+      input.style.display = 'block'
     }
-    if(result !== 'other' && input > 2){
-      return fieldset.removeChild(fieldset.lastChild)
+    else {
+      input.style.display = 'none'
     }
   })
 }
@@ -23,26 +23,38 @@ jobRole();
 const tShirt = () => {
   const tDesign = document.getElementById('design');
   const color = document.getElementById('color');
-  const container = document.getElementById('colors-js-puns');
   let arr = [...color.querySelectorAll('option')];
-  container.style.display = 'none';
+  color.style.display = 'none';
 
   tDesign.addEventListener('change', function(e){
     const theme = e.target.value;
     while(color.length){
       color.remove(0)
     }
+
     switch(theme){
       case 'js puns':
-        arr.forEach((c,i) => {if(i < 3) color.add(c)});
-        container.style.display = 'block'
+        arr.map((c,i) => {
+          let colorValue = document.createElement('option');
+          colorValue.text = c.value;
+
+          if(i < 3) color.add(colorValue);
+        });
+        color.style.display = 'block'
       break;
+
       case 'heart js':
-        arr.forEach((c,i) => {if(i > 2) color.add(c)});
-        container.style.display = 'block'
+        arr.map((c,i) => {
+          let colorValue = document.createElement('option');
+          colorValue.text = c.value;
+
+          if(i > 2) color.add(colorValue)
+        });
+        color.style.display = 'block'
       break;
+
       default:
-        container.style.display = 'none'
+        color.style.display = 'none'
     }
   })
 }
@@ -54,6 +66,7 @@ const activities = () => {
   const text = document.createElement('p');
   act.appendChild(text);
   let total = 0;
+
     const scheduleCheck = (a, check) => {
       if(check){
         label[a].childNodes[0].setAttribute('disabled', 'disabled');
@@ -62,6 +75,7 @@ const activities = () => {
       label[a].childNodes[0].removeAttribute('disabled');
       label[a].style.textDecoration = 'none'
     }
+
 }
   act.addEventListener('change', function(e){
     const checkBoxValue = e.target;
@@ -106,14 +120,135 @@ paymentInfo()
 
 const validation = () => {
   const name = document.getElementById('name');
-  const email = document.getElementById('mail').value;
-  const checkbox = document.querySelector('fieldset.activities').querySelectorAll('input');
-  const cardNumber = document.getElementById('cc-num').value;
-  const zipCode = document.getElementById('zip').value;
-  const cvv = document.getElementById('cvv').value;
-  const errorMessage = (input) => {
-    input.style.border = '3px solid red'
-    input.placeholder = 'this field is required'
+  const email = document.getElementById('mail');
+  const shirtInfo = document.getElementById('design');
+  const legends = document.querySelectorAll('legend');
+  const fieldCheck = document.querySelector('fieldset.activities');
+  const checkBox = [...document.querySelector('fieldset.activities').querySelectorAll('input')];
+  const selectPayment = document.getElementById('payment');
+  const cardNumber = document.getElementById('cc-num');
+  const zipCode = document.getElementById('zip');
+  const cvv = document.getElementById('cvv');
+  const button = document.querySelector('button');
+  let error = document.createElement('p');
+  let tShirtError = error.cloneNode(true);
+  tShirtError.style.color = 'red';
+  error.style.color = 'red';
+
+
+    const errorMessage = (a, b) => {
+      if(a){
+      b.style.border = '3px solid red';
+      b.placeholder = 'this field is required';
+    } else {
+      b.style.border = '2px solid #c1deeb';
+      b.placeholder = '';
+      }
+    }
+
+    const nameCheck = () => {
+      if(name.value === ''){
+        errorMessage(true, name);
+        return false
+      }
+      else {
+      errorMessage(false, name);
+      return true
+    }
   }
+
+    const emailCheck = () => {
+      if(email.value.search(/\S+@\S+\.\S+/) >= 0){
+        errorMessage(false, email);
+        return true
+      }
+      else {
+      errorMessage(true, email);
+      return false
+    }
+  }
+
+    const shirtCheck = () => {
+        if(shirtInfo.selectedIndex === 0){
+          legends[1].appendChild(tShirtError);
+          tShirtError.innerHTML = 'please select a design';
+          return false
+    }
+      else {
+        tShirtError.innerHTML = '';
+        return true
+    }
+  }
+
+    const activityCheck = () => {
+      for(let i = 0; i < checkBox.length; i++){
+        if(!checkBox[i].checked){
+          legends[2].appendChild(error);
+          error.innerHTML = 'please pick atleast one from this section';
+          }
+          else if(checkBox[i].checked == true){
+            return error.innerHTML = '';
+          }
+        }
+      }
+
+      const activityValidation = (fn) => {
+        fn();
+        return (error.innerHTML === '') ? true : false;
+      }
+
+      const cardNumberCheck = () => {
+        if(selectPayment.value === 'credit card'){
+          const digits = cardNumber.value.length;
+
+          if(digits > 12 && digits < 17){
+            cardNumber.setAttribute('required', false);
+            cardNumber.style.border = '2px solid #c1deeb';
+            return true
+          }
+          else{
+            cardNumber.setAttribute('required',true)
+            cardNumber.style.border = '2px solid red';
+            return false
+          }
+        }
+      }
+
+      const zipCodeCheck = () => {
+        if(zipCode.value.length === 5){
+          zipCode.removeAttribute('required', false);
+          zipCode.style.border = '2px solid #c1deeb';
+          return true
+        }
+        else {
+          zipCode.setAttribute('required', true);
+          zipCode.style.border = '2px solid red';
+          return false
+        }
+      }
+
+      const cvvCheck = () => {
+        if(cvv.value.length === 3){
+          cvv.removeAttribute('required', false);
+          cvv.style.border = '2px solid #c1deeb';
+          return true
+        }
+        else {
+          cvv.setAttribute('required', true);
+          cvv.style.border = '2px solid red';
+          return false
+        }
+      }
+
+  button.addEventListener('click', function(e){
+    e.preventDefault();
+    console.log(nameCheck());
+    console.log(emailCheck());
+    console.log(shirtCheck());
+    console.log(activityValidation(activityCheck));
+    console.log(cardNumberCheck());
+    console.log(zipCodeCheck());
+    console.log(cvvCheck());
+  })
 }
-validation()
+validation();
