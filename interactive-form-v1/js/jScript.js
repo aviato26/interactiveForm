@@ -1,6 +1,6 @@
 
 (function(){
-  const input = document.getElementById('name').focus();
+  const input = document.querySelector('#name').focus();
 })()
 
 const jobRole = () => {
@@ -134,7 +134,8 @@ const validation = () => {
   let tShirtError = error.cloneNode(true);
   tShirtError.style.color = 'red';
   error.style.color = 'red';
-
+  let checkValue = [];
+  let state;
 
     const errorMessage = (a, b) => {
       if(a){
@@ -198,30 +199,29 @@ const validation = () => {
       }
 
       const cardNumberCheck = () => {
+        const digits = cardNumber.value.length;
         if(selectPayment.value === 'credit card'){
-          const digits = cardNumber.value.length;
-
+          if(parseInt(cardNumber.value) !== NaN){
+            console.log(car)
           if(digits > 12 && digits < 17){
             cardNumber.setAttribute('required', false);
             cardNumber.style.border = '2px solid #c1deeb';
             return true
           }
+        }
           else{
             cardNumber.setAttribute('required',true)
             cardNumber.style.border = '2px solid red';
-            return false
           }
         }
       }
 
       const zipCodeCheck = () => {
         if(zipCode.value.length === 5){
-          zipCode.removeAttribute('required', false);
           zipCode.style.border = '2px solid #c1deeb';
           return true
         }
         else {
-          zipCode.setAttribute('required', true);
           zipCode.style.border = '2px solid red';
           return false
         }
@@ -229,26 +229,76 @@ const validation = () => {
 
       const cvvCheck = () => {
         if(cvv.value.length === 3){
-          cvv.removeAttribute('required', false);
           cvv.style.border = '2px solid #c1deeb';
           return true
         }
         else {
-          cvv.setAttribute('required', true);
           cvv.style.border = '2px solid red';
           return false
         }
       }
 
+      const checkSelectedPayment = () => {
+        if(selectPayment.value === 'select_method'){
+          selectPayment.style.border = '2px solid red';
+          return false
+        } else {
+          selectPayment.style.border = '1px solid rgb(166, 166, 166)';
+          return true
+        }
+      }
+
+    let splicedArray = () => {
+
+        checkValue.push(
+        nameCheck(),
+        emailCheck(),
+        shirtCheck(),
+        activityValidation(activityCheck),
+        checkSelectedPayment(),
+        cardNumberCheck(),
+        zipCodeCheck(),
+        cvvCheck()
+        );
+
+        if(selectPayment.value === 'select_method'){
+          checkValue.splice(5,8)
+        } else {
+          checkValue.splice(4);
+          checkValue.push(
+            cardNumberCheck(),
+            zipCodeCheck(),
+            cvvCheck()
+          )
+        }
+
+        if((selectPayment.value === 'bitcoin') || (selectPayment.value === 'paypal')){
+            checkValue.splice(4,7);
+            checkValue.push(true)
+        }
+
+      return function(){
+        while(checkValue.length){
+          checkValue.splice(0,7)
+        }
+      }
+    }
+
+    const truth = (arr) => {
+      return arr === true;
+    }
+
+
   button.addEventListener('click', function(e){
     e.preventDefault();
-    console.log(nameCheck());
-    console.log(emailCheck());
-    console.log(shirtCheck());
-    console.log(activityValidation(activityCheck));
-    console.log(cardNumberCheck());
-    console.log(zipCodeCheck());
-    console.log(cvvCheck());
+    splicedArray();
+    state = checkValue.every(truth);
+    splicedArray()();
+    /*if(state === false){
+      e.preventDefault();
+    } else {
+      return true;
+    }*/
   })
 }
 validation();
