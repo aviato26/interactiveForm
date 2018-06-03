@@ -22,9 +22,11 @@ jobRole();
 
 const tShirt = () => {
   const tDesign = document.getElementById('design');
+  const container = document.getElementById('colors-js-puns');
   const color = document.getElementById('color');
   let arr = [...color.querySelectorAll('option')];
-  color.style.display = 'none';
+  container.style.display = 'none';
+
 
   tDesign.addEventListener('change', function(e){
     const theme = e.target.value;
@@ -40,7 +42,7 @@ const tShirt = () => {
 
           if(i < 3) color.add(colorValue);
         });
-        color.style.display = 'block'
+        container.style.display = 'block'
       break;
 
       case 'heart js':
@@ -50,11 +52,11 @@ const tShirt = () => {
 
           if(i > 2) color.add(colorValue)
         });
-        color.style.display = 'block'
+        container.style.display = 'block'
       break;
 
       default:
-        color.style.display = 'none'
+        container.style.display = 'none'
     }
   })
 }
@@ -122,6 +124,7 @@ const validation = () => {
   const name = document.getElementById('name');
   const email = document.getElementById('mail');
   const shirtInfo = document.getElementById('design');
+  const labels = document.querySelectorAll('label');
   const legends = document.querySelectorAll('legend');
   const fieldCheck = document.querySelector('fieldset.activities');
   const checkBox = [...document.querySelector('fieldset.activities').querySelectorAll('input')];
@@ -132,10 +135,14 @@ const validation = () => {
   const button = document.querySelector('button');
   let error = document.createElement('p');
   let tShirtError = error.cloneNode(true);
+  let emailError = tShirtError.cloneNode(true);
+  labels[1].appendChild(emailError);
+  emailError.style.color = 'red';
   tShirtError.style.color = 'red';
   error.style.color = 'red';
   let checkValue = [];
   let state;
+
 
     const errorMessage = (a, b) => {
       if(a){
@@ -159,15 +166,26 @@ const validation = () => {
   }
 
     const emailCheck = () => {
-      if(email.value.search(/\S+@\S+\.\S+/) >= 0){
+      const value = email.value;
+
+      if(value === ''){
+          emailError.innerHTML = 'there seems to be no text in the email field';
+          errorMessage(true, email);
+          return false
+        }
+      else if(value.search(/\S+@\S+\.\S+/) == -1){
+          emailError.innerHTML = 'awesome im reading some text but email is not complete yet';
+          errorMessage(true, email);
+          return false
+        }
+      else {
+        emailError.innerHTML = '';
         errorMessage(false, email);
         return true
       }
-      else {
-      errorMessage(true, email);
-      return false
     }
-  }
+
+  mail.addEventListener('keyup', emailCheck);
 
     const shirtCheck = () => {
         if(shirtInfo.selectedIndex === 0){
@@ -200,15 +218,14 @@ const validation = () => {
 
       const cardNumberCheck = () => {
         const digits = cardNumber.value.length;
+        const digitCheck = isNaN(cardNumber.value);
+
         if(selectPayment.value === 'credit card'){
-          if(parseInt(cardNumber.value) !== NaN){
-            console.log(car)
-          if(digits > 12 && digits < 17){
+          if((digits > 12 && digits < 17) && (digitCheck === false)){
             cardNumber.setAttribute('required', false);
             cardNumber.style.border = '2px solid #c1deeb';
             return true
           }
-        }
           else{
             cardNumber.setAttribute('required',true)
             cardNumber.style.border = '2px solid red';
@@ -217,7 +234,9 @@ const validation = () => {
       }
 
       const zipCodeCheck = () => {
-        if(zipCode.value.length === 5){
+        const digitCheck = isNaN(zipCode.value);
+
+        if((zipCode.value.length === 5) && (digitCheck === false)){
           zipCode.style.border = '2px solid #c1deeb';
           return true
         }
@@ -228,7 +247,9 @@ const validation = () => {
       }
 
       const cvvCheck = () => {
-        if(cvv.value.length === 3){
+        const digitCheck = isNaN(cvv.value);
+
+        if((cvv.value.length === 3) && (digitCheck === false)){
           cvv.style.border = '2px solid #c1deeb';
           return true
         }
@@ -290,15 +311,14 @@ const validation = () => {
 
 
   button.addEventListener('click', function(e){
-    e.preventDefault();
     splicedArray();
     state = checkValue.every(truth);
     splicedArray()();
-    /*if(state === false){
+    if(state === false){
       e.preventDefault();
     } else {
       return true;
-    }*/
+    }
   })
 }
 validation();
